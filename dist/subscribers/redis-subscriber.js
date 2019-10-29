@@ -19,7 +19,8 @@ var RedisSubscriber = (function () {
                         log_1.Log.info("Event: " + message.event);
                     }
                     if (_this.options.compressedPayload && 'compressedPayload' in message.data) {
-                        var data = zlib_1.unzipSync(message.data.compressedPayload, { level: 9 }).toString();
+                        var compressedPayload = Buffer.from(message.data.compressedPayload, 'base64').toString();
+                        var data = zlib_1.unzipSync(compressedPayload, { level: 9 }).toString();
                         var dataJSON = JSON.parse(data);
                         if (_this.options.devMode) {
                             log_1.Log.info("Event data JSON.stringify: " + JSON.stringify(dataJSON));
