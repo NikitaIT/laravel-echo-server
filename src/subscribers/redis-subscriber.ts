@@ -36,13 +36,13 @@ export class RedisSubscriber implements Subscriber {
                         Log.info("Event: " + message.event);
                     }
                     if (this.options.compressedPayload) {
-                        const event = unzipSync(message.event, { level: 9 }).toString();
-                        const eventJSON = JSON.parse(event);
+                        const data = unzipSync(message.event.data, { level: 9 }).toString();
+                        const dataJSON = JSON.parse(data);
                         if (this.options.devMode) {
-                            Log.info("Event unziped string: " + event);
-                            Log.info("Event JSON: " + eventJSON);
+                            Log.info("Event data unziped string: " + data);
+                            Log.info("Event data JSON: " + dataJSON);
                         }
-                        message.event = eventJSON;
+                        message.event.data = dataJSON;
                     }
 
                     callback(channel, message);
