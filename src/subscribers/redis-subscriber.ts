@@ -36,13 +36,11 @@ export class RedisSubscriber implements Subscriber {
                         Log.info("Event: " + message.event);
                     }
                     if (this.options.compressedPayload && 'compressedPayload' in message.data) {
-                        const compressedPayload = Buffer.from(message.data.compressedPayload, 'base64').toString();
-                        const data = unzipSync(compressedPayload, { level: 9 }).toString();
-                        const dataJSON = JSON.parse(data);
+                        const compressedPayload = JSON.parse(unzipSync(Buffer.from(message.data.compressedPayload, 'base64')).toString());
                         if (this.options.devMode) {
-                            Log.info("Event data JSON.stringify: " + JSON.stringify(dataJSON));
+                            Log.info("Event data JSON.stringify: " + JSON.stringify(compressedPayload));
                         }
-                        message.data.data = dataJSON;
+                        message.data.data = compressedPayload;
                         delete message.data.compressedPayload;
                     }
 

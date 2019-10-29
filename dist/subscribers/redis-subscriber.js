@@ -19,13 +19,11 @@ var RedisSubscriber = (function () {
                         log_1.Log.info("Event: " + message.event);
                     }
                     if (_this.options.compressedPayload && 'compressedPayload' in message.data) {
-                        var compressedPayload = Buffer.from(message.data.compressedPayload, 'base64').toString();
-                        var data = zlib_1.unzipSync(compressedPayload, { level: 9 }).toString();
-                        var dataJSON = JSON.parse(data);
+                        var compressedPayload = JSON.parse(zlib_1.unzipSync(Buffer.from(message.data.compressedPayload, 'base64')).toString());
                         if (_this.options.devMode) {
-                            log_1.Log.info("Event data JSON.stringify: " + JSON.stringify(dataJSON));
+                            log_1.Log.info("Event data JSON.stringify: " + JSON.stringify(compressedPayload));
                         }
-                        message.data.data = dataJSON;
+                        message.data.data = compressedPayload;
                         delete message.data.compressedPayload;
                     }
                     callback(channel, message);
