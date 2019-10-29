@@ -30,22 +30,19 @@ export class RedisSubscriber implements Subscriber {
         return new Promise((resolve, reject) => {
             this._redis.on('pmessage', (subscribed, channel, message) => {
                 try {
-                    if (this.options.devMode) {
-                        Log.info(JSON.stringify(message));
-                    }
                     message = JSON.parse(message);
                     if (this.options.devMode) {
                         Log.info("Channel: " + channel);
                         Log.info("Event: " + message.event);
                     }
-                    if (this.options.compressedPayload) {
-                        const data = unzipSync(message.data, { level: 9 }).toString();
+                    if (this.options.compressedPayload && 'compressedPayload' in message.data) {
+                        const data = unzipSync(message.data.compressedPayload, { level: 9 }).toString();
                         const dataJSON = JSON.parse(data);
                         if (this.options.devMode) {
-                            Log.info("Event data unziped string: " + data);
-                            Log.info("Event data JSON: " + dataJSON);
+                            Log.info("Event data JSON.stringify: " + JSON.stringify(dataJSON));
                         }
-                        message.data = dataJSON;
+                        message.data.data = dataJSON;
+                        delete message.data.compressedPayload;
                     }
 
                     callback(channel, message);

@@ -13,22 +13,19 @@ var RedisSubscriber = (function () {
         return new Promise(function (resolve, reject) {
             _this._redis.on('pmessage', function (subscribed, channel, message) {
                 try {
-                    if (_this.options.devMode) {
-                        log_1.Log.info(JSON.stringify(message));
-                    }
                     message = JSON.parse(message);
                     if (_this.options.devMode) {
                         log_1.Log.info("Channel: " + channel);
                         log_1.Log.info("Event: " + message.event);
                     }
-                    if (_this.options.compressedPayload) {
-                        var data = zlib_1.unzipSync(message.data, { level: 9 }).toString();
+                    if (_this.options.compressedPayload && 'compressedPayload' in message.data) {
+                        var data = zlib_1.unzipSync(message.data.compressedPayload, { level: 9 }).toString();
                         var dataJSON = JSON.parse(data);
                         if (_this.options.devMode) {
-                            log_1.Log.info("Event data unziped string: " + data);
-                            log_1.Log.info("Event data JSON: " + dataJSON);
+                            log_1.Log.info("Event data JSON.stringify: " + JSON.stringify(dataJSON));
                         }
-                        message.data = dataJSON;
+                        message.data.data = dataJSON;
+                        delete message.data.compressedPayload;
                     }
                     callback(channel, message);
                 }
