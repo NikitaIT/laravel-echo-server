@@ -35,6 +35,7 @@ export class EchoServer {
         sslKeyPath: '',
         sslCertChainPath: '',
         sslPassphrase: '',
+        compressedPayload: false,
         subscribers: {
             http: true,
             redis: true

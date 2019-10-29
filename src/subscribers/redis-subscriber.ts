@@ -1,6 +1,7 @@
 var Redis = require('ioredis');
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
+import { unzipSync } from 'zlib';
 
 export class RedisSubscriber implements Subscriber {
     /**
@@ -30,10 +31,18 @@ export class RedisSubscriber implements Subscriber {
             this._redis.on('pmessage', (subscribed, channel, message) => {
                 try {
                     message = JSON.parse(message);
-
                     if (this.options.devMode) {
                         Log.info("Channel: " + channel);
                         Log.info("Event: " + message.event);
+                    }
+                    if (this.options.compressedPayload) {
+                        const event = unzipSync(message.event, { level: 9 }).toString();
+                        const eventJSON = JSON.parse(event);
+                        if (this.options.devMode) {
+                            Log.info("Event unziped string: " + event);
+                            Log.info("Event JSON: " + eventJSON);
+                        }
+                        message.event = eventJSON;
                     }
 
                     callback(channel, message);
